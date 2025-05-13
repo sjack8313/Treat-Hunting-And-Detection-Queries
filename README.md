@@ -1,5 +1,5 @@
 # Splunk Detection Engineering & Threat Hunting SOP
-
+This SOP is based off of what I made for my company procedures
 This SOP is for using the 10 detection engineering and threat hunting SPL queries provided in this repository. It explains how to:
 
 - Save queries as **detection alerts** (detection engineering)
@@ -30,11 +30,8 @@ Detection Engineering is about building repeatable logic to automatically detect
      - Push to ticketing system
 5. Click **Save**
 
-🔁 Now your detection runs automatically on a schedule.
-
-> ⚠️ **Important:** If you're using the **free version of Splunk**, the "Save As Alert" option is **disabled**. You will need a trial or paid version of Splunk Enterprise to save alerts.
-
-> ✅ This simulates what Detection Engineers build in production. If you're using Splunk Enterprise Security (ES), you'd build this as a **Correlation Search**.
+🔁 Now my detection runs automatically on a schedule.
+This SOP is based off of what I made for my company procedures
 
 ---
 
