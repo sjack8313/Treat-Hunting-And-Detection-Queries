@@ -1,5 +1,5 @@
 # Splunk Detection Engineering & Threat Hunting SOP
-This SOP is based off of what I made for my company procedures
+This SOP is based off of what I made for my company procedures.
 This SOP is for using the 10 detection engineering and threat hunting SPL queries provided in this repository. It explains how to:
 
 - Save queries as **detection alerts** (detection engineering)
