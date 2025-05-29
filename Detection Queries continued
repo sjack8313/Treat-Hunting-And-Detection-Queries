@@ -1,1 +1,36 @@
+index=proxy_logs sourcetype=bluecoat OR zscaler
+| search user="what ever user I need" and BYTES_out >10000000
+| transaction user maxspan=5m
+| table user, uri, bytes_out, _time
+
+Item	                            Replace With form your own enviroment:	
+index=proxy_logs	     //      This is Your index that stores proxy logs (e.g., index=network or index=zscaler)	
+sourcetype=zscaler	   //      This is to Match to your real sourcetype (e.g., bluecoat, zscaler, pan:traffic)	
+user="REPLACE_USER"	   //      This is Only used during investigations (replace with user from alert or skip this during detection)	
+bytes_out	           //        This Might be called bytes_sent or outbound_bytes in your logs — confirm field name	
+                             uri	Might be url, cs_uri, or dest_url — confirm based on log source
+
+
+
+
+
+index=windows sourcetype="wineventlog" EvenCode=4265
+| search LogonType=10
+| stats count by src_ip, user, host
+| where count > 30
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
