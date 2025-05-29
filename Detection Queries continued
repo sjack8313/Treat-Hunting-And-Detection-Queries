@@ -1,3 +1,5 @@
+******* Suspiscious File Download After VPN Login **************************
+
 index=proxy_logs sourcetype=bluecoat OR zscaler
 | search user="what ever user I need" and BYTES_out >10000000
 | transaction user maxspan=5m
@@ -10,18 +12,29 @@ user="REPLACE_USER"	   //      This is Only used during investigations (replace 
 bytes_out	           //        This Might be called bytes_sent or outbound_bytes in your logs — confirm field name	
                              uri	Might be url, cs_uri, or dest_url — confirm based on log source
 
+***********************************************************************************************************************************************
 
 
-
-
+************ RDP Brute Force Connection ******************
 index=windows sourcetype="wineventlog" EvenCode=4265
 | search LogonType=10
 | stats count by src_ip, user, host
 | where count > 30
 
+Item	                                               Replace With
+index=windows	                                        Your index for Windows logs
+sourcetype="WinEventLog:Security"	                   Could be xmlwineventlog or wineventlog:security depending on how you're ingesting
+LogonType=10	LogonType 10 =                         RDP; keep unless looking for different logon types
+src_ip, user, host	                                 Confirm your field names — may be src, user_name, ComputerName, not host etc.
 
 
 
+***********************************************************************************************************************************************
+
+********************* Powershell Encoded Command *********************
+index=sysmon sourcetype="xmwinevnentlog:Microsoft-windows-sysmon/Operational
+| search image= "*Powershell.exe*" Commandline="*EncodedCommand*"
+| table user, host, CommandLine, _time
 
 
 
