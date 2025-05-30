@@ -1,66 +1,65 @@
-##########################################
-# 5. Suspicious Use of rundll32.exe from Temp Folder
-# Tags: #DETECTION_ENGINEERING
-# Description:
-# rundll32.exe running from a temp directory is often used in malware execution.
-# Practical Use:
-# Identifies malicious payloads dropped to temp folders and executed using LOLBins like rundll32.exe.
-##########################################
+#7 - Office Macro Launch + Network Call
+What it Detects:
+Phishing emails that drop Word or Excel docs with malicious macros that run PowerShell (Invoke-WebRequest) to download payloads.
 
-index=sysmon EventCode=1                                                  // Retrieves process creation events
-| search Image="*\\rundll32.exe" CommandLine="*\\AppData\\Local\\Temp*"   // Looks for rundll32.exe launched from a temp path
-| stats count by host, user, CommandLine                                  // Shows affected hosts and users running this command
+SPL:
 
+spl
+Copy
+Edit
+index=sysmon ParentImage="*winword.exe" OR ParentImage="*excel.exe"
+| search CommandLine="*Invoke-WebRequest*" OR CommandLine="*curl*"
+| stats count by user, host, CommandLine
+What to Replace:
 
+index=sysmon ➜ Replace with the actual index your org stores Sysmon logs in (could be windows_logs, endpoint, etc.)
 
+ParentImage="*winword.exe" ➜ Keep this unless your telemetry uses different casing or log format
 
+CommandLine=... ➜ You can expand this with other network utilities used in attacks like bitsadmin, wget, etc.
 
-##########################################
-# 6. DNS Tunneling / High Query Volume
-# Tags: #THREAT_HUNTING
-# Description:
-# Detects excessive DNS queries with subdomain patterns common in tunneling.
-# Practical Use:
-# Helps detect stealthy data exfiltration or command-and-control traffic using DNS queries.
-##########################################
+********************************************************************************************************************************************
 
-index=dns_logs                                                         // Searches DNS logs for query activity
-| stats count by src_ip, query                                        // Counts number of times each query was made by source IP
-| where count > 500 AND (like(query, "%.%.%") OR like(query, "%-%-%-%")) // Filters for high volume and encoded-like query patterns
+✅ #8 - Rare AWS Console Login Locations
+What it Detects:
+Potential IAM account misuse — login from >3 countries could be credential theft or token misuse.
 
+SPL:
 
+spl
+Copy
+Edit
+index=aws sourcetype=aws:cloudtrail eventName=ConsoleLogin
+| iplocation src_ip
+| stats dc(Country) as login_locations by user
+| where login_locations > 3
+What to Replace:
 
+index=aws ➜ Replace with your actual AWS CloudTrail index name
 
+src_ip ➜ Must match the field in your logs that holds the login IP (sometimes sourceIPAddress)
 
-##########################################
-# 7. Office Macro Launch + Network Call
-# Tags: #BOTH
-# Description:
-# Detects Office documents launching commands that reach out to the internet.
-# Practical Use:
-# Identifies phishing payloads using macros to download malware via curl or PowerShell web requests.
-##########################################
+user ➜ Ensure it matches your CloudTrail username field (often userIdentity.arn or userIdentity.userName)
 
-index=sysmon ParentImage="*winword.exe" OR ParentImage="*excel.exe"     // Finds processes spawned by Word or Excel
-| search CommandLine="*Invoke-WebRequest*" OR CommandLine="*curl*"      // Filters for network calls inside macro-based processes
-| stats count by user, host, CommandLine                                // Shows which users and machines executed the network calls
+********************************************************************************************************************************************
 
+✅ #6 - DNS Tunneling / High Query Volume
+What it Detects:
+Suspicious DNS activity — high volume or subdomain-heavy queries are often signs of data exfiltration via DNS tunneling.
 
+SPL:
 
+spl
+Copy
+Edit
+index=dns_logs
+| stats count by src_ip, query
+| where count > 500 AND (like(query, "%.%.%") OR like(query, "%-%"))
+What to Replace:
 
-##########################################
-# 8. Rare AWS Console Login Location
-# Tags: #DETECTION_ENGINEERING
-# Description:
-# Detects AWS user accounts logging in from many different countries — potential credential compromise.
-# Practical Use:
-# Flags account takeovers or misuse of IAM credentials across multiple geolocations.
-##########################################
+index=dns_logs ➜ Replace with your DNS log index (dns, infoblox, etc.)
 
-index=aws sourcetype=aws:cloudtrail eventName=ConsoleLogin       // Looks for AWS login activity from CloudTrail logs
-| iplocation src_ip                                              // Performs GeoIP lookup on the source IP
-| stats dc(Country) as login_locations by user                   // Counts how many unique countries each user has logged in from
-| where login_locations > 3                                      // Flags users with more than 3 distinct login locations
+src_ip ➜ Could be client_ip, src, etc., depending on your logging
 
-
+query ➜ Might be domain, question.name, etc.
 
