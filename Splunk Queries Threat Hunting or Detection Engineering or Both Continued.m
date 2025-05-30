@@ -4,9 +4,6 @@ Phishing emails that drop Word or Excel docs with malicious macros that run Powe
 
 SPL:
 
-spl
-Copy
-Edit
 index=sysmon ParentImage="*winword.exe" OR ParentImage="*excel.exe"
 | search CommandLine="*Invoke-WebRequest*" OR CommandLine="*curl*"
 | stats count by user, host, CommandLine
@@ -25,10 +22,6 @@ What it Detects:
 Potential IAM account misuse — login from >3 countries could be credential theft or token misuse.
 
 SPL:
-
-spl
-Copy
-Edit
 index=aws sourcetype=aws:cloudtrail eventName=ConsoleLogin
 | iplocation src_ip
 | stats dc(Country) as login_locations by user
@@ -48,10 +41,6 @@ What it Detects:
 Suspicious DNS activity — high volume or subdomain-heavy queries are often signs of data exfiltration via DNS tunneling.
 
 SPL:
-
-spl
-Copy
-Edit
 index=dns_logs
 | stats count by src_ip, query
 | where count > 500 AND (like(query, "%.%.%") OR like(query, "%-%"))
