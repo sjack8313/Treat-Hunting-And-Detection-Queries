@@ -39,6 +39,23 @@ index=sysmon sourcetype="xmwinevnentlog:Microsoft-windows-sysmon/Operational
 
 
 
+******************************************************************************
+
+**************** Registry Persistence via Run Keys ***********
+MITRE T1547.001 – Registry Run Keys/Startup Folder
+
+index=windows OR index=sysmon sourcetype=Sysmon
+| search RegistryPath="*\\Microsoft\\Windows\\CurrentVersion\\Run*" 
+| stats count by user, host, RegistryPath, RegistryValueName, RegistryValueData, _time
+
+
+Replace:
+
+index=azure_logs → Your Azure/O365 index
+
+src_ip, user → Use correct field names (may be ipAddress, userPrincipalName)
+
+
 
 
 
