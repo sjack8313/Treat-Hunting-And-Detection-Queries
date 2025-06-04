@@ -55,6 +55,26 @@ index=azure_logs → Your Azure/O365 index
 
 src_ip, user → Use correct field names (may be ipAddress, userPrincipalName)
 
+***************************************************************
+
+*************Suspicious OAuth Token Abuse***************************
+ MITRE T1528 – Steal Application Access Token
+Type: Threat Hunting → Can become Detection
+
+index=azure_logs sourcetype="o365:audit"
+| search Operation="RefreshToken"
+| stats dc(src_ip) AS distinct_ips values(src_ip) AS ip_list by user, user_agent
+| where distinct_ips > 2
+
+Replace:
+
+index=azure_logs → Your Azure/O365 index
+
+src_ip, user → Use correct field names (may be ipAddress, userPrincipalName
+
+
+
+
 
 
 
