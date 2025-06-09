@@ -76,10 +76,40 @@ src_ip, user → Use correct field names (may be ipAddress, userPrincipalName
 
 
 
+**************************************************************************************************
+ITRE ID: T1218.010 — CertUtil
+Type: Detection Query
+
+spl
+Copy
+Edit
+index=sysmon sourcetype=Sysmon
+| search Image="*\\certutil.exe*" AND CommandLine="*urlcache*"
+| stats count by user, CommandLine, host, parent_process_name, _time
+🔄 Replace:
+
+index=sysmon → your EDR/Sysmon index
+
+CommandLine, Image → adjust to fit your logs
 
 
 
+**********************************************************************************************************
 
+1. Suspicious File Downloads via Web Browser
+MITRE Technique: T1105 (Ingress Tool Transfer)
+Goal: Detect tools (e.g., .exe, .ps1, .zip) downloaded via browsers
+
+
+index=proxy OR index=web sourcetype=*proxy*
+| search uri_path="*.exe" OR uri_path="*.ps1" OR uri_path="*.zip"
+| stats count by uri_path, src_ip, http_user_agent, user, _time
+🔄 What to Replace:
+index=proxy → your proxy or web logs index
+
+uri_path, src_ip, user → field names for URL path and client IP/user
+
+Add host, domain, or category if your logs support it
 
 
 
